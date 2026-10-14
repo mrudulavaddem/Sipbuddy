@@ -22,6 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Find the app folder
+        shell: bash
+        run: |
+          conf=$(git ls-files | grep 'src-tauri/tauri.conf.json$' | head -1)
+          if [ -z "$conf" ]; then echo "Could not find src-tauri/tauri.conf.json - was the src-tauri folder uploaded?"; exit 1; fi
+          dir=$(dirname "$(dirname "$conf")")
+          echo "App folder: $dir"
+          echo "APP_DIR=$dir" >> "$GITHUB_ENV"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -30,16 +39,12 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - uses: swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri -> target
-
-      - run: npm ci
-
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          projectPath: ${{ env.APP_DIR }}
+          tauriScript: npx --yes @tauri-apps/cli@2
           tagName: v__VERSION__
           releaseName: Sip Buddy v__VERSION__
           releaseBody: |
