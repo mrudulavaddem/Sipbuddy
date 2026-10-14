@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sip Buddy</title>
+<link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+<div id="stage">
+  <div id="walker">
+    <div id="bubble" aria-live="polite">
+      <div id="bubble-title">Time for a sip!</div>
+      <div id="bubble-sub">Glass 1 of 8 today</div>
+      <div id="bubble-actions">
+        <button id="btn-done" type="button">Done</button>
+        <button id="btn-snooze" type="button" class="ghost">Snooze 10 min</button>
+      </div>
+    </div>
+    <div id="sparkles"></div>
+
+    <!-- Original character: a cheerful woman carrying a water bottle (faces right) -->
+    <svg id="girl" class="walking" viewBox="0 0 140 240" width="140" height="240" aria-hidden="true">
+      <ellipse class="shadow" cx="74" cy="233" rx="32" ry="5"/>
+
+      <g class="bob">
+        <!-- low ponytail (behind head) -->
+        <g class="ponytail">
+          <path d="M60 36 C 48 44, 44 64, 48 86 C 52 78, 56 70, 58 64 C 60 58, 62 50, 64 44 Z" fill="#8E6A82"/>
+          <circle cx="59" cy="44" r="3.4" fill="#F4A9B8"/>
+        </g>
+
+        <!-- back arm -->
+        <g class="arm arm-back">
+          <path d="M68 70 L 66 112" stroke="#EDC2A8" stroke-width="7.5" stroke-linecap="round"/>
+          <path d="M68 70 L 67 86" stroke="#BFA6E2" stroke-width="10" stroke-linecap="round"/>
+        </g>
+
+        <!-- back leg -->
+        <g class="leg leg-back">
+          <path d="M71 146 L 71 220" stroke="#E7BBA2" stroke-width="7.5" stroke-linecap="round"/>
+          <path d="M66 223 Q 72 217 82 221 L 82 226 L 66 226 Z" fill="#B79AD9"/>
+        </g>
+
+        <!-- front leg -->
+        <g class="leg leg-front">
+          <path d="M77 146 L 77 220" stroke="#F3CDB6" stroke-width="7.5" stroke-linecap="round"/>
+          <path d="M72 223 Q 78 217 88 221 L 88 226 L 72 226 Z" fill="#CDB8E8"/>
+        </g>
+
+        <!-- skirt -->
+        <path d="M63 98 L 87 98 L 102 156 Q 75 163 48 156 Z" fill="#F7B9C8"/>
+        <path d="M50 149 Q 75 156 100 149 L 102 156 Q 75 163 48 156 Z" fill="#EE9DB3"/>
+        <circle cx="68" cy="120" r="1.9" fill="#FFF3F6"/>
+        <circle cx="82" cy="130" r="1.9" fill="#FFF3F6"/>
+        <circle cx="62" cy="142" r="1.9" fill="#FFF3F6"/>
+        <circle cx="90" cy="144" r="1.9" fill="#FFF3F6"/>
+        <circle cx="76" cy="110" r="1.9" fill="#FFF3F6"/>
+        <!-- blouse -->
+        <path d="M61 66 Q 75 59 89 66 L 87 100 Q 75 103 63 100 Z" fill="#CDB8E8"/>
+        <path d="M70 62 L 75 70 L 80 62" stroke="#B49BDB" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+        <rect x="62" y="96" width="26" height="5" rx="2.5" fill="#B49BDB"/>
+
+        <!-- neck + head -->
+        <rect x="71" y="50" width="8" height="14" rx="3.5" fill="#F3CDB6"/>
+        <ellipse cx="76" cy="36" rx="16" ry="18" fill="#F8D9C6"/>
+        <!-- hair -->
+        <path d="M59 40 C 56 20, 70 13, 81 16 C 92 19, 95 30, 93 36 C 88 28, 80 26, 72 29 C 66 31, 63 36, 63 46 Z" fill="#9C7A8F"/>
+        <path d="M80 17 C 89 19, 95 27, 93 36 C 90 31, 86 27, 82 25 Z" fill="#8E6A82"/>
+        <!-- ear + earring -->
+        <ellipse cx="66.5" cy="40" rx="3" ry="4" fill="#F3CDB6"/>
+        <circle cx="66.5" cy="45.5" r="1.6" fill="#8FD3C3"/>
+        <!-- face -->
+        <g class="eyes">
+          <ellipse cx="81" cy="37" rx="1.9" ry="2.6" fill="#4A3B4F"/>
+          <ellipse cx="89.5" cy="37" rx="1.7" ry="2.4" fill="#4A3B4F"/>
+          <circle cx="81.6" cy="36" r=".7" fill="#fff"/>
+          <circle cx="90" cy="36" r=".6" fill="#fff"/>
+          <path d="M79 34 l 3.6 -0.8 M88 34 l 3 -0.6" stroke="#4A3B4F" stroke-width="1" stroke-linecap="round"/>
+        </g>
+        <ellipse cx="78.5" cy="44" rx="3.2" ry="2" fill="#F7A9B8" opacity=".7"/>
+        <ellipse cx="91" cy="44" rx="2.2" ry="1.7" fill="#F7A9B8" opacity=".7"/>
+        <path class="mouth" d="M83.5 45 Q 86.5 48.5 89.5 45" stroke="#B85C74" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+
+        <!-- front arm holding bottle -->
+        <g class="arm arm-front">
+          <path d="M82 70 L 84 110" stroke="#F8D9C6" stroke-width="7.5" stroke-linecap="round"/>
+          <path d="M82 70 L 83 86" stroke="#DCCBF1" stroke-width="10" stroke-linecap="round"/>
+          <g class="bottle">
+            <rect x="78" y="103" width="13" height="25" rx="5" fill="#BFE3F7" stroke="#8CC8EC" stroke-width="1.4"/>
+            <rect x="80.5" y="98.5" width="8" height="6" rx="2.2" fill="#8FD3C3"/>
+            <rect x="79.5" y="114" width="10" height="12" rx="3.5" fill="#8CC8EC" opacity=".55"/>
+            <path d="M84.5 106 q 2.3 3 0 4.5 q -2.3 -1.5 0 -4.5 Z" fill="#fff"/>
+          </g>
+          <circle cx="84.5" cy="111" r="4.2" fill="#F8D9C6"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+<script src="overlay.js"></script>
+</body>
+</html>
