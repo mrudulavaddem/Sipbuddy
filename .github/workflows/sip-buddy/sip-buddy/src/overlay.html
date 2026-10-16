@@ -19,79 +19,95 @@
     <div id="sparkles"></div>
 
     <!-- Original character: a cheerful woman carrying a water bottle (faces right) -->
-    <svg id="girl" class="walking" viewBox="0 0 140 240" width="140" height="240" aria-hidden="true">
-      <ellipse class="shadow" cx="74" cy="233" rx="32" ry="5"/>
+    <svg id="girl" class="walking" viewBox="0 0 90 140" aria-hidden="true">
+      <ellipse class="shadow" cx="47" cy="134.5" rx="21" ry="3"/>
 
       <g class="bob">
-        <!-- low ponytail (behind head) -->
-        <g class="ponytail">
-          <path d="M60 36 C 48 44, 44 64, 48 86 C 52 78, 56 70, 58 64 C 60 58, 62 50, 64 44 Z" fill="#8E6A82"/>
-          <circle cx="59" cy="44" r="3.4" fill="#F4A9B8"/>
+        <!-- long wavy hair flowing behind -->
+        <g class="hair-back">
+          <path fill="#B0604A" d="M31 28 C 21 40, 20 56, 24 68 C 19 74, 21 86, 30 90 C 29 84, 32 80, 37 82 C 35 76, 38 70, 44 70 C 45 60, 48 48, 50 36 Z">
+            <animate class="walk" attributeName="d" dur=".8s" repeatCount="indefinite" begin="indefinite" fill="remove" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M31 28 C 19 40, 16.5 55, 19.5 67 C 13.5 73, 15 85, 24 88.5 C 24 83, 28 79.5, 33 81 C 32 75.5, 36 70.5, 42.5 70 C 44.5 60, 48 48, 50 36 Z;M31 28 C 20.5 41, 19 57, 22.5 68.5 C 17 75.5, 18.5 87, 27 90.5 C 26.5 84.5, 30.5 81, 35.5 83 C 33.5 76.5, 37.5 70.5, 43.5 70.2 C 45 60, 48 48, 50 36 Z;M31 28 C 19 40, 16.5 55, 19.5 67 C 13.5 73, 15 85, 24 88.5 C 24 83, 28 79.5, 33 81 C 32 75.5, 36 70.5, 42.5 70 C 44.5 60, 48 48, 50 36 Z"/>
+          </path>
+          <path fill="none" stroke="#9A5541" stroke-width="1" stroke-linecap="round" opacity=".7" d="M30 46 C 27 56, 27 64, 29 72">
+            <animate class="walk" attributeName="d" dur=".8s" repeatCount="indefinite" begin="indefinite" fill="remove" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M29 46 C 25 56, 24 64, 25.5 71;M29.5 46 C 26.5 56, 26 64, 27.5 72;M29 46 C 25 56, 24 64, 25.5 71"/>
+          </path>
         </g>
 
-        <!-- back arm -->
-        <g class="arm arm-back">
-          <path d="M68 70 L 66 112" stroke="#EDC2A8" stroke-width="7.5" stroke-linecap="round"/>
-          <path d="M68 70 L 67 86" stroke="#BFA6E2" stroke-width="10" stroke-linecap="round"/>
-        </g>
-
-        <!-- back leg -->
+        <!-- far leg -->
         <g class="leg leg-back">
-          <path d="M71 146 L 71 220" stroke="#E7BBA2" stroke-width="7.5" stroke-linecap="round"/>
-          <path d="M66 223 Q 72 217 82 221 L 82 226 L 66 226 Z" fill="#B79AD9"/>
+          <path d="M43 98 L 42.5 126" stroke="#E5AF90" stroke-width="5.4" stroke-linecap="round"/>
+          <path d="M42.5 123 L 42.5 127" stroke="#F4F1EC" stroke-width="5.6"/>
+          <path d="M39.6 127.5 L 45 127.5 Q 50 128 50.6 131.4 Q 50.6 133 49 133 L 39.6 133 Q 38.6 130 39.6 127.5 Z" fill="#245D59"/>
         </g>
 
-        <!-- front leg -->
+        <!-- far arm -->
+        <g class="arm arm-back">
+          <path d="M37 65 L 33 84" stroke="#E5AF90" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="32.7" cy="85.5" r="2.9" fill="#E5AF90"/>
+          <circle cx="37.6" cy="64.5" r="5.6" fill="#367F7B"/>
+        </g>
+
+        <!-- neck -->
+        <rect x="44" y="52" width="7" height="9" rx="3" fill="#EDBB9C"/>
+
+        <!-- near leg -->
         <g class="leg leg-front">
-          <path d="M77 146 L 77 220" stroke="#F3CDB6" stroke-width="7.5" stroke-linecap="round"/>
-          <path d="M72 223 Q 78 217 88 221 L 88 226 L 72 226 Z" fill="#CDB8E8"/>
+          <path d="M51 98 L 51.5 126" stroke="#F4C9AC" stroke-width="5.4" stroke-linecap="round"/>
+          <path d="M51.5 123 L 51.5 127" stroke="#FFFFFF" stroke-width="5.6"/>
+          <path d="M48.6 127.5 L 54 127.5 Q 59 128 59.6 131.4 Q 59.6 133 58 133 L 48.6 133 Q 47.6 130 48.6 127.5 Z" fill="#2F6F6A"/>
         </g>
 
-        <!-- skirt -->
-        <path d="M63 98 L 87 98 L 102 156 Q 75 163 48 156 Z" fill="#F7B9C8"/>
-        <path d="M50 149 Q 75 156 100 149 L 102 156 Q 75 163 48 156 Z" fill="#EE9DB3"/>
-        <circle cx="68" cy="120" r="1.9" fill="#FFF3F6"/>
-        <circle cx="82" cy="130" r="1.9" fill="#FFF3F6"/>
-        <circle cx="62" cy="142" r="1.9" fill="#FFF3F6"/>
-        <circle cx="90" cy="144" r="1.9" fill="#FFF3F6"/>
-        <circle cx="76" cy="110" r="1.9" fill="#FFF3F6"/>
-        <!-- blouse -->
-        <path d="M61 66 Q 75 59 89 66 L 87 100 Q 75 103 63 100 Z" fill="#CDB8E8"/>
-        <path d="M70 62 L 75 70 L 80 62" stroke="#B49BDB" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
-        <rect x="62" y="96" width="26" height="5" rx="2.5" fill="#B49BDB"/>
+        <!-- dress -->
+        <g class="skirt">
+          <path fill="#3F8C88" d="M37 60 Q 48 55 59 60 L 66 100 Q 61 103.5 55 101.5 Q 49 104.5 43 101.5 Q 36.5 104 30 100 Z">
+            <animate class="walk" attributeName="d" dur=".4s" repeatCount="indefinite" begin="indefinite" fill="remove" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M37 60 Q 48 55 59 60 L 67.5 99 Q 62 103 56 101.6 Q 49.5 104.6 43.5 102 Q 37 104.2 31 100.6 Z;M37 60 Q 48 55 59 60 L 64.5 100.5 Q 59.5 104 53.5 102 Q 47.5 104.8 41.5 101.8 Q 34.5 103.8 28 99 Z;M37 60 Q 48 55 59 60 L 67.5 99 Q 62 103 56 101.6 Q 49.5 104.6 43.5 102 Q 37 104.2 31 100.6 Z"/>
+          </path>
+          <path d="M41 70 Q 38 86, 37 101 M52 70 Q 55 86, 56.5 101" stroke="#367F7B" stroke-width="1.2" fill="none" stroke-linecap="round">
+            <animate class="walk" attributeName="d" dur=".4s" repeatCount="indefinite" begin="indefinite" fill="remove" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M41 70 Q 38.5 86, 37.5 102 M52 70 Q 55.5 86, 57.5 101.5;M41 70 Q 37 86, 35.5 101.5 M52 70 Q 54 86, 54.5 101.5;M41 70 Q 38.5 86, 37.5 102 M52 70 Q 55.5 86, 57.5 101.5"/>
+          </path>
+        </g>
+        <!-- collar -->
+        <path fill="#356F6C" d="M41 59 Q 45 66 49 61 Q 51.5 66 56.5 59.5 Q 49 56 41 59 Z"/>
 
-        <!-- neck + head -->
-        <rect x="71" y="50" width="8" height="14" rx="3.5" fill="#F3CDB6"/>
-        <ellipse cx="76" cy="36" rx="16" ry="18" fill="#F8D9C6"/>
-        <!-- hair -->
-        <path d="M59 40 C 56 20, 70 13, 81 16 C 92 19, 95 30, 93 36 C 88 28, 80 26, 72 29 C 66 31, 63 36, 63 46 Z" fill="#9C7A8F"/>
-        <path d="M80 17 C 89 19, 95 27, 93 36 C 90 31, 86 27, 82 25 Z" fill="#8E6A82"/>
-        <!-- ear + earring -->
-        <ellipse cx="66.5" cy="40" rx="3" ry="4" fill="#F3CDB6"/>
-        <circle cx="66.5" cy="45.5" r="1.6" fill="#8FD3C3"/>
-        <!-- face -->
+        <!-- head: three-quarter view turned towards the way she walks -->
+        <circle cx="48" cy="36" r="19.5" fill="#F5CDB0"/>
+        <ellipse cx="57" cy="47" rx="10.5" ry="7.5" fill="#F5CDB0"/>
         <g class="eyes">
-          <ellipse cx="81" cy="37" rx="1.9" ry="2.6" fill="#4A3B4F"/>
-          <ellipse cx="89.5" cy="37" rx="1.7" ry="2.4" fill="#4A3B4F"/>
-          <circle cx="81.6" cy="36" r=".7" fill="#fff"/>
-          <circle cx="90" cy="36" r=".6" fill="#fff"/>
-          <path d="M79 34 l 3.6 -0.8 M88 34 l 3 -0.6" stroke="#4A3B4F" stroke-width="1" stroke-linecap="round"/>
+          <ellipse cx="56" cy="39.6" rx="1.6" ry="2.2" fill="#3A2A26"/>
+          <ellipse cx="64.6" cy="39.2" rx="1.2" ry="2" fill="#3A2A26"/>
         </g>
-        <ellipse cx="78.5" cy="44" rx="3.2" ry="2" fill="#F7A9B8" opacity=".7"/>
-        <ellipse cx="91" cy="44" rx="2.2" ry="1.7" fill="#F7A9B8" opacity=".7"/>
-        <path class="mouth" d="M83.5 45 Q 86.5 48.5 89.5 45" stroke="#B85C74" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <g class="eyes-happy">
+          <path d="M54.3 39.9 Q 56 37.9 57.7 39.9 M63.3 39.4 Q 64.6 37.6 65.9 39.4" stroke="#3A2A26" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+        </g>
+        <ellipse cx="53" cy="45.2" rx="3" ry="2" fill="#F2A49A" opacity=".75"/>
+        <ellipse cx="66.2" cy="44.6" rx="1.6" ry="1.6" fill="#F2A49A" opacity=".75"/>
+        <path d="M59.2 46.6 Q 61.6 48.8 63.8 46.4" stroke="#3A2A26" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+        <!-- hair covers the back and top of her head; fringe sweeps over her forehead -->
+        <path fill="#B86A52" d="M27 42 C 25 22, 37 13.5, 49.5 14 C 61.5 14.5, 69.5 22.5, 68 33 C 64 28.5, 58 26, 52.5 27 C 49.5 30, 46.5 31.5, 43.5 32 C 42.5 36, 42 39, 41.5 42 C 39 46.5, 38 52, 38 58 C 31.5 54, 27.5 48.5, 27 42 Z"/>
+        <path fill="#A65842" d="M30.5 38 C 26 50, 26.5 63, 30.5 71 C 34 64, 35.5 53, 35 42 Z">
+          <animate class="walk" attributeName="d" dur=".8s" repeatCount="indefinite" begin="indefinite" fill="remove" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M30.5 38 C 25 50, 24.5 62, 27.5 70 C 31.5 64, 34.5 53, 35 42 Z;M30.5 38 C 25.5 50, 25.5 63, 29 71 C 33 64, 35 53, 35 42 Z;M30.5 38 C 25 50, 24.5 62, 27.5 70 C 31.5 64, 34.5 53, 35 42 Z"/>
+        </path>
+        <!-- ear -->
+        <ellipse cx="43.6" cy="43.2" rx="2.5" ry="3.3" fill="#EDBB9C"/>
+        <path d="M43 41.6 Q 44.4 43 43.2 44.6" stroke="#D99F82" stroke-width=".8" fill="none" stroke-linecap="round"/>
+        <path d="M36 21 Q 44 16.5 54 18" stroke="#CF8670" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>
+        <path d="M30.5 30 Q 34 24 40 22" stroke="#CF8670" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".6"/>
 
-        <!-- front arm holding bottle -->
+        <!-- near arm holding a water bottle -->
         <g class="arm arm-front">
-          <path d="M82 70 L 84 110" stroke="#F8D9C6" stroke-width="7.5" stroke-linecap="round"/>
-          <path d="M82 70 L 83 86" stroke="#DCCBF1" stroke-width="10" stroke-linecap="round"/>
-          <g class="bottle">
-            <rect x="78" y="103" width="13" height="25" rx="5" fill="#BFE3F7" stroke="#8CC8EC" stroke-width="1.4"/>
-            <rect x="80.5" y="98.5" width="8" height="6" rx="2.2" fill="#8FD3C3"/>
-            <rect x="79.5" y="114" width="10" height="12" rx="3.5" fill="#8CC8EC" opacity=".55"/>
-            <path d="M84.5 106 q 2.3 3 0 4.5 q -2.3 -1.5 0 -4.5 Z" fill="#fff"/>
+          <path d="M59 65 L 62.5 76" stroke="#F4C9AC" stroke-width="5" stroke-linecap="round"/>
+          <g class="forearm">
+            <path d="M62.5 76 L 65 86" stroke="#F4C9AC" stroke-width="5" stroke-linecap="round"/>
+            <g class="bottle">
+              <rect x="62.4" y="78.5" width="6" height="13" rx="2.2" fill="#BFE3F2"/>
+              <rect x="63.2" y="85" width="4.4" height="5.6" rx="1.4" fill="#8CC9E4"/>
+              <rect x="63.6" y="76" width="3.6" height="3.2" rx="1" fill="#F08FA0"/>
+            </g>
+            <circle cx="65.2" cy="86.4" r="3" fill="#F4C9AC"/>
           </g>
-          <circle cx="84.5" cy="111" r="4.2" fill="#F8D9C6"/>
+          <!-- puff sleeve -->
+          <circle cx="58.5" cy="64.5" r="6" fill="#4A9A95"/>
+          <path d="M53.5 67.5 Q 58.5 71.5 64 67" stroke="#367F7B" stroke-width="1" fill="none"/>
         </g>
       </g>
     </svg>

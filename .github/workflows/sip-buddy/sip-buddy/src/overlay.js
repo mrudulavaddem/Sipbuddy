@@ -13,7 +13,7 @@
   const btnDone = document.getElementById('btn-done');
   const btnSnooze = document.getElementById('btn-snooze');
 
-  const SPEED = 125;          // px per second
+  const SPEED = 75;           // px per second
   const IGNORE_AFTER = 120e3; // auto-snooze if nobody responds for 2 minutes
   let x = -200;
   let busy = false;
@@ -21,8 +21,39 @@
   let snoozeMinutes = 10;
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const setX = (v) => { x = v; walker.style.transform = `translateX(${v}px)`; };
-  const setPose = (pose) => { girl.setAttribute('class', pose); };
+  // In the desktop app the little window itself walks across the screen and she stays
+  // centred inside it. In a plain browser preview she walks across the page instead.
+  const inApp = !!T;
+  let screenW = window.innerWidth;
+  let winW = 280;
+  let lastSent = null;
+  if (inApp) {
+    walker.style.left = '50%';
+    walker.style.transform = 'translateX(-50%)';
+  }
+  const setX = (v) => {
+    x = v;
+    if (inApp) {
+      const r = Math.round(v);
+      if (r !== lastSent) { lastSent = r; invoke('overlay_move', { x: r }); }
+    } else {
+      walker.style.transform = `translateX(${v}px)`;
+    }
+  };
+  // Hair and skirt flow with each step (SVG shape animations) only while walking.
+  const flowAnims = [...girl.querySelectorAll('animate.walk')];
+  let flowing = false;
+  const setPose = (pose) => {
+    girl.setAttribute('class', pose);
+    const walk = pose === 'walking';
+    if (walk && !flowing) {
+      // restart the step cycle so legs, skirt and hair stay in time
+      girl.getAnimations({ subtree: true }).forEach((an) => { an.currentTime = 0; });
+      flowAnims.forEach((an) => an.beginElement());
+    }
+    if (!walk && flowing) flowAnims.forEach((a) => a.endElement());
+    flowing = walk;
+  };
 
   function walkTo(target) {
     setPose('walking');
@@ -38,19 +69,6 @@
       };
       requestAnimationFrame(step);
     });
-  }
-
-  // Tell the app which area is clickable; everywhere else clicks pass through.
-  function reportHitArea(on) {
-    if (!on) return invoke('set_hit_rect', { rect: null });
-    const a = bubble.getBoundingClientRect();
-    const b = girl.getBoundingClientRect();
-    const pad = 8;
-    const left = Math.min(a.left, b.left) - pad;
-    const top = Math.min(a.top, b.top) - pad;
-    const right = Math.max(a.right, b.right) + pad;
-    const bottom = Math.max(a.bottom, b.bottom) + pad;
-    return invoke('set_hit_rect', { rect: [left, top, right - left, bottom - top] });
   }
 
   function chime() {
@@ -80,8 +98,8 @@
       d.className = 'drop';
       d.textContent = icon;
       const angle = (-150 + i * 24) * (Math.PI / 180);
-      d.style.setProperty('--dx', `${Math.cos(angle) * 70}px`);
-      d.style.setProperty('--dy', `${Math.sin(angle) * 70}px`);
+      d.style.setProperty('--dx', `${Math.cos(angle) * 40}px`);
+      d.style.setProperty('--dy', `${Math.sin(angle) * 40}px`);
       sparkles.appendChild(d);
       setTimeout(() => d.remove(), 1200);
     });
@@ -98,22 +116,27 @@
     actions.classList.remove('hidden');
     bubble.classList.remove('show');
 
-    setX(-200);
-    const stopAt = Math.max(80, Math.min(window.innerWidth - 300, window.innerWidth * 0.68));
+    if (inApp) {
+      screenW = info.screen_width || screen.availWidth;
+      winW = info.window_width || 280;
+    }
+    const startX = inApp ? -winW : -200;
+    const stopAt = inApp
+      ? Math.max(0, Math.min(screenW - winW, screenW * 0.5 - winW / 2))
+      : Math.max(80, Math.min(window.innerWidth - 160, window.innerWidth * 0.68));
+    setX(startX);
     await walkTo(stopAt);
     setPose('standing');
     if (info.sound !== false) chime();
     await sleep(250);
     bubble.classList.add('show');
     await sleep(400);
-    reportHitArea(true);
     ignoreTimer = setTimeout(() => finish('ignored'), IGNORE_AFTER);
   }
 
   async function finish(kind) {
     clearTimeout(ignoreTimer);
     actions.classList.add('hidden');
-    reportHitArea(false);
 
     if (kind === 'done') {
       const res = await invoke('reminder_done');
@@ -134,7 +157,7 @@
 
     bubble.classList.remove('show');
     await sleep(200);
-    await walkTo(window.innerWidth + 60);
+    await walkTo(inApp ? screenW + 10 : window.innerWidth + 60);
     setPose('walking');
     busy = false;
     await invoke('overlay_finished');

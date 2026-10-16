@@ -20,75 +20,81 @@ html, body {
 
 #stage { position: fixed; inset: 0; }
 
+/* She is about 2 cm tall on a standard display. */
 #walker {
   position: absolute;
-  bottom: 6px;
+  bottom: 4px;
   left: 0;
-  width: 140px;
-  height: 240px;
+  width: 1.3cm;
+  height: 2cm;
   transform: translateX(-200px);
   will-change: transform;
 }
 
-#girl { position: absolute; bottom: 0; left: 0; overflow: visible; }
-
-#girl .shadow { fill: rgba(74, 59, 79, .16); }
+#girl { position: absolute; bottom: 0; left: 0; width: 1.3cm; height: 2cm; overflow: visible; }
+#girl .shadow { fill: #E7C3BB; opacity: .8; }
+#girl .eyes-happy { display: none; }
 
 /* pivots in SVG user units */
-#girl .leg, #girl .arm, #girl .ponytail, #girl .bob, #girl .eyes {
+#girl .leg, #girl .arm, #girl .bob, #girl .eyes, #girl .hair-back, #girl .skirt {
   transform-box: view-box;
 }
-#girl .leg { transform-origin: 74px 146px; }
-#girl .arm-back { transform-origin: 68px 70px; }
-#girl .arm-front { transform-origin: 82px 70px; transition: transform .45s cubic-bezier(.3,1.4,.5,1); }
-#girl .ponytail { transform-origin: 60px 40px; }
-#girl .eyes { transform-origin: 85px 37px; animation: blink 4.2s infinite; }
+#girl .bob { transform-origin: 47px 134px; }
+#girl .leg { transform-origin: 47px 98px; }
+#girl .skirt { transform-origin: 48px 60px; }
+#girl .arm-back { transform-origin: 37px 65px; }
+#girl .arm-front { transform-origin: 59px 65px; }
+#girl .arm-front { transition: transform .6s ease; }
+#girl .forearm { transform-box: view-box; transform-origin: 62.5px 76px; transition: transform .6s ease; }
+#girl .hair-back { transform-origin: 44px 30px; }
+#girl .eyes { transform-origin: 60px 39.4px; animation: blink 4.6s infinite; }
 
-/* ---- walk cycle ---- */
-#girl.walking .leg-front { animation: swing 0.72s ease-in-out infinite; }
-#girl.walking .leg-back  { animation: swing 0.72s ease-in-out infinite reverse; }
-#girl.walking .arm-back  { animation: armswing 0.72s ease-in-out infinite; }
-#girl.walking .arm-front { animation: armswing 0.72s ease-in-out infinite reverse; }
-#girl.walking .bob       { animation: bob 0.36s ease-in-out infinite alternate; }
-#girl.walking .ponytail  { animation: tail 0.36s ease-in-out infinite alternate; }
+/* ---- natural walk ---- */
+#girl.walking .leg-front { animation: step .8s ease-in-out infinite; }
+#girl.walking .leg-back  { animation: step .8s ease-in-out -.4s infinite; }
+#girl.walking .arm-back  { animation: armswing .8s ease-in-out infinite; }
+#girl.walking .arm-front { animation: armswing .8s ease-in-out -.4s infinite; }
+#girl.walking .bob       { animation: stride .4s ease-in-out infinite; }
 
-@keyframes swing    { 0%,100% { transform: rotate(18deg); } 50% { transform: rotate(-18deg); } }
-@keyframes armswing { 0%,100% { transform: rotate(-16deg); } 50% { transform: rotate(16deg); } }
-@keyframes bob      { from { transform: translateY(0); } to { transform: translateY(-3px); } }
-@keyframes tail     { from { transform: rotate(-6deg); } to { transform: rotate(10deg); } }
-@keyframes blink    { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+@keyframes step     { 0%,100% { transform: rotate(14deg); } 50% { transform: rotate(-14deg); } }
+@keyframes skirt    { from { transform: skewX(2.5deg); } to { transform: skewX(-2.5deg); } }
+@keyframes armswing { 0%,100% { transform: rotate(-13deg); } 50% { transform: rotate(13deg); } }
+@keyframes stride   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }
+@keyframes flow     { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(1.5deg); } }
+@keyframes blink    { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 
 /* ---- standing & offering the bottle ---- */
-#girl.standing .arm-front { transform: rotate(-42deg); }
-#girl.standing .bob { animation: breathe 2.4s ease-in-out infinite; }
-#girl.standing .ponytail { animation: tail 1.2s ease-in-out infinite alternate; }
-@keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+#girl.standing .arm-front { transform: rotate(-20deg); }
+#girl.standing .forearm { transform: rotate(-50deg); }
+#girl.standing .bob { animation: breathe 3s ease-in-out infinite; }
+#girl.standing .hair-back { animation: flow 3s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-.5px); } }
 
-/* ---- happy hop ---- */
-#girl.cheer .bob { animation: hop .42s ease-out 2; }
-#girl.cheer .arm-front { transform: rotate(-150deg); }
-#girl.cheer .arm-back { transform: rotate(30deg); }
-@keyframes hop { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-14px); } }
+/* ---- having a sip ---- */
+#girl.cheer .arm-front { transform: rotate(-80deg); }
+#girl.cheer .forearm { transform: rotate(-125deg); }
+#girl.cheer .eyes { display: none; }
+#girl.cheer .eyes-happy { display: inline; }
 
 /* ---- wave (snooze) ---- */
 #girl.wave .arm-front { animation: wave .5s ease-in-out 3; transform: rotate(-150deg); }
-@keyframes wave { 0%,100% { transform: rotate(-150deg); } 50% { transform: rotate(-120deg); } }
+@keyframes wave { 0%,100% { transform: rotate(-150deg); } 50% { transform: rotate(-125deg); } }
 
 /* ---- speech bubble ---- */
 #bubble {
   position: absolute;
-  bottom: 238px;
+  bottom: calc(2cm + 10px);
   left: 50%;
-  min-width: 220px;
-  padding: 14px 16px 14px;
+  min-width: 190px;
+  padding: 10px 14px 12px;
   background: var(--cream);
   color: var(--ink);
   border: 2px solid var(--pink);
   border-radius: 22px;
   box-shadow: 0 10px 28px rgba(74, 59, 79, .18);
   text-align: center;
-  transform: translateX(-30%) scale(.4);
-  transform-origin: 30% 110%;
+  transform: translateX(-50%) scale(.4);
+  transform-origin: 50% 110%;
   opacity: 0;
   pointer-events: none;
   transition: transform .35s cubic-bezier(.3,1.5,.5,1), opacity .2s ease;
@@ -96,29 +102,29 @@ html, body {
 #bubble::after {
   content: "";
   position: absolute;
-  left: 30%;
-  bottom: -11px;
-  width: 18px;
-  height: 18px;
+  left: calc(50% - 7px);
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
   background: var(--cream);
   border-right: 2px solid var(--pink);
   border-bottom: 2px solid var(--pink);
   transform: rotate(45deg);
   border-bottom-right-radius: 5px;
 }
-#bubble.show { transform: translateX(-30%) scale(1); opacity: 1; pointer-events: auto; }
-#bubble-title { font-size: 17px; font-weight: 700; letter-spacing: .2px; }
-#bubble-sub { font-size: 13px; margin-top: 3px; opacity: .8; }
-#bubble-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+#bubble.show { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+#bubble-title { font-size: 15px; font-weight: 700; letter-spacing: .2px; }
+#bubble-sub { font-size: 12px; margin-top: 3px; opacity: .8; }
+#bubble-actions { display: flex; gap: 8px; justify-content: center; margin-top: 9px; }
 #bubble-actions.hidden { display: none; }
 
 button {
   font: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   border: 0;
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 6px 13px;
   white-space: nowrap;
   cursor: pointer;
   color: #fff;
@@ -136,10 +142,10 @@ button.ghost {
 button.ghost:active { box-shadow: 0 1px 0 var(--lilac); }
 
 /* ---- celebration drops ---- */
-#sparkles { position: absolute; left: 70px; bottom: 170px; width: 0; height: 0; }
+#sparkles { position: absolute; left: 0.5cm; bottom: 1.6cm; width: 0; height: 0; }
 .drop {
   position: absolute;
-  font-size: 18px;
+  font-size: 13px;
   animation: fly 1.1s ease-out forwards;
 }
 @keyframes fly {

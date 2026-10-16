@@ -13,11 +13,12 @@
     :root { --ink: #F4EAF2; --muted: #B9A9BE; --bg: #2A2330; --card: #352C3C; --line: #4A3F52; --lilac-soft: #42364C; }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  html, body { margin: 0; height: 100%; }
+  html { overflow-y: auto; }
   body {
     background: var(--bg); color: var(--ink);
     font-family: "Poppins", "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
-    font-size: 14px; padding: 22px 22px 18px; user-select: none; -webkit-user-select: none;
+    font-size: 14px; padding: 18px 20px 16px; user-select: none; -webkit-user-select: none;
   }
   header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   header svg { flex: none; }
@@ -33,10 +34,12 @@
   .count { font-weight: 700; font-size: 15px; white-space: nowrap; }
   .steppers { display: flex; gap: 6px; }
 
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; }
   .row + .row { border-top: 1px dashed var(--line); }
   label { cursor: pointer; }
-  select, input[type=time], input[type=number] {
+  input, select { user-select: auto; -webkit-user-select: auto; }
+  .switch { cursor: pointer; display: inline-block; }
+  select, input[type=number] {
     font: inherit; color: var(--ink); background: var(--lilac-soft); border: 1px solid transparent;
     border-radius: 10px; padding: 6px 8px; min-width: 0;
   }
@@ -49,7 +52,7 @@
 
   /* toggle switch */
   .switch { position: relative; width: 42px; height: 24px; flex: none; }
-  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; margin: 0; }
   .switch i { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: background .2s; }
   .switch i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s; }
   .switch input:checked + i { background: var(--pink-deep); }
@@ -115,13 +118,13 @@
     <div class="row">
       <span>Active hours</span>
       <span class="times">
-        <input type="time" id="start" aria-label="Start time"> to
-        <input type="time" id="end" aria-label="End time">
+        <select id="start" aria-label="Start time"></select> to
+        <select id="end" aria-label="End time"></select>
       </span>
     </div>
     <div class="row">
       <label for="weekdays">Weekdays only</label>
-      <span class="switch"><input type="checkbox" id="weekdays"><i></i></span>
+      <label class="switch"><input type="checkbox" id="weekdays"><i></i></label>
     </div>
     <div class="row">
       <label for="goal">Daily goal (glasses)</label>
@@ -129,15 +132,15 @@
     </div>
     <div class="row">
       <label for="sound">Gentle chime</label>
-      <span class="switch"><input type="checkbox" id="sound"><i></i></span>
+      <label class="switch"><input type="checkbox" id="sound"><i></i></label>
     </div>
     <div class="row">
       <label for="paused">Pause reminders</label>
-      <span class="switch"><input type="checkbox" id="paused"><i></i></span>
+      <label class="switch"><input type="checkbox" id="paused"><i></i></label>
     </div>
     <div class="row">
       <label for="autostart">Start when my computer starts</label>
-      <span class="switch"><input type="checkbox" id="autostart"><i></i></span>
+      <label class="switch"><input type="checkbox" id="autostart"><i></i></label>
     </div>
   </section>
 
@@ -152,6 +155,24 @@
   const invoke = (c, a) => T ? T.core.invoke(c, a) : Promise.resolve(null);
   const $ = (id) => document.getElementById(id);
   let goal = 8;
+
+  // Fill the start/end dropdowns with half-hour times.
+  function fmt(h, m) {
+    const ampm = h < 12 ? 'am' : 'pm';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+  }
+  ['start', 'end'].forEach((id) => {
+    const sel = $(id);
+    for (let h = 0; h < 24; h++) for (const m of [0, 30]) {
+      const v = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      sel.add(new Option(fmt(h, m), v));
+    }
+  });
+  function setSelect(sel, value, label) {
+    if (![...sel.options].some((o) => o.value === String(value))) sel.add(new Option(label || value, value));
+    sel.value = String(value);
+  }
 
   const dropSvg = (full) =>
     `<svg viewBox="0 0 16 20" width="16" height="20"><path d="M8 1 C8 1 2 9 2 13 a6 6 0 0 0 12 0 C14 9 8 1 8 1Z" fill="${full ? '#9ED4F0' : 'none'}" stroke="#9ED4F0" stroke-width="1.5"/></svg>`;
@@ -176,12 +197,9 @@
     const s = st.settings;
     goal = s.daily_goal;
     const sel = $('interval');
-    if (![...sel.options].some((o) => +o.value === s.interval_minutes)) {
-      sel.add(new Option(`${s.interval_minutes} minutes`, s.interval_minutes));
-    }
-    sel.value = s.interval_minutes;
-    $('start').value = s.start_time;
-    $('end').value = s.end_time;
+    setSelect(sel, s.interval_minutes, `${s.interval_minutes} minutes`);
+    setSelect($('start'), s.start_time);
+    setSelect($('end'), s.end_time);
     $('weekdays').checked = s.weekdays_only;
     $('goal').value = s.daily_goal;
     $('sound').checked = s.sound;
@@ -202,8 +220,15 @@
       sound: $('sound').checked,
       paused: $('paused').checked,
     };
-    await invoke('save_settings', { settings });
+    try {
+      await invoke('save_settings', { settings });
+    } catch (err) {
+      $('saved').textContent = 'Could not save';
+      $('saved').classList.add('on');
+      return;
+    }
     await load();
+    $('saved').textContent = 'Saved ✓';
     $('saved').classList.add('on');
     clearTimeout(savedTimer);
     savedTimer = setTimeout(() => $('saved').classList.remove('on'), 1500);
@@ -213,8 +238,16 @@
     $(id).addEventListener('change', saveAll));
 
   $('autostart').addEventListener('change', async (e) => {
-    try { await invoke('set_autostart', { enabled: e.target.checked }); }
-    catch (err) { e.target.checked = !e.target.checked; }
+    try {
+      await invoke('set_autostart', { enabled: e.target.checked });
+      $('saved').textContent = 'Saved ✓';
+    } catch (err) {
+      e.target.checked = !e.target.checked;
+      $('saved').textContent = 'Could not change start-up setting';
+    }
+    $('saved').classList.add('on');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(() => $('saved').classList.remove('on'), 1500);
   });
 
   $('plus').addEventListener('click', async () => renderToday(await invoke('add_glass', { delta: 1 }) ?? 0));
