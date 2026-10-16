@@ -13,7 +13,10 @@ use tauri::{
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 
 const SNOOZE_MINUTES: i64 = 10;
-const OVERLAY_HEIGHT: f64 = 430.0; // logical pixels
+// The reminder window is only as big as the character and her speech bubble.
+// It moves across the screen as she walks, so the rest of the screen is never covered.
+const OVERLAY_WIDTH: f64 = 280.0; // logical pixels
+const OVERLAY_HEIGHT: f64 = 200.0; // logical pixels
 
 // ---------------------------------------------------------------- data ----
 
@@ -55,8 +58,11 @@ struct State {
     progress: Progress,
     next_due: i64,
     overlay_showing: bool,
-    hit_rect: Option<[f64; 4]>,
-    ignoring_cursor: bool,
+    // where the walking window sits: left edge of the screen area (physical px),
+    // window top (physical px) and display scale
+    area_x: i32,
+    win_y: i32,
+    scale: f64,
 }
 
 struct Shared(Mutex<State>);
@@ -76,6 +82,8 @@ struct ReminderInfo {
     goal: u32,
     sound: bool,
     snooze_minutes: i64,
+    screen_width: f64,
+    window_width: f64,
 }
 
 #[derive(Serialize)]
@@ -191,7 +199,21 @@ fn open_settings(app: &AppHandle) {
 // ------------------------------------------------------------- overlay ----
 
 fn show_overlay(app: &AppHandle) {
+    let Some(win) = app.get_webview_window("overlay") else { return };
     let shared = app.state::<Shared>();
+
+    // Measure the main screen's usable area (above the taskbar / dock).
+    let (area_x, area_y, area_w, area_h, scale) = match win.primary_monitor() {
+        Ok(Some(mon)) => {
+            let a = mon.work_area();
+            (a.position.x, a.position.y, a.size.width, a.size.height, mon.scale_factor())
+        }
+        _ => (0, 0, 1280, 800, 1.0),
+    };
+    let w = (OVERLAY_WIDTH * scale) as u32;
+    let h = ((OVERLAY_HEIGHT * scale) as u32).min(area_h);
+    let win_y = area_y + area_h as i32 - h as i32;
+
     let info = {
         let mut st = shared.0.lock().unwrap();
         if st.overlay_showing {
@@ -199,37 +221,25 @@ fn show_overlay(app: &AppHandle) {
         }
         roll_day(app, &mut st);
         st.overlay_showing = true;
-        st.hit_rect = None;
+        st.area_x = area_x;
+        st.win_y = win_y;
+        st.scale = scale;
         ReminderInfo {
             glasses: st.progress.glasses,
             goal: st.settings.daily_goal,
             sound: st.settings.sound,
             snooze_minutes: SNOOZE_MINUTES,
+            screen_width: area_w as f64 / scale,
+            window_width: OVERLAY_WIDTH,
         }
     };
 
-    let Some(win) = app.get_webview_window("overlay") else { return };
-
-    // Stretch across the bottom of the main screen, just above the taskbar / dock.
-    if let Ok(Some(mon)) = win.primary_monitor() {
-        let scale = mon.scale_factor();
-        let area = mon.work_area();
-        let h = ((OVERLAY_HEIGHT * scale) as u32).min(area.size.height);
-        let _ = win.set_size(PhysicalSize::new(area.size.width, h));
-        let _ = win.set_position(PhysicalPosition::new(
-            area.position.x,
-            area.position.y + area.size.height as i32 - h as i32,
-        ));
-    }
-
+    // Start just off the left edge of the screen.
+    let _ = win.set_size(PhysicalSize::new(w, h));
+    let _ = win.set_position(PhysicalPosition::new(area_x - w as i32, win_y));
     let _ = win.set_always_on_top(true);
     let _ = win.set_visible_on_all_workspaces(true);
     let _ = win.show();
-    // Only after show(): the native window must exist before changing input handling.
-    let _ = win.set_ignore_cursor_events(true);
-    {
-        shared.0.lock().unwrap().ignoring_cursor = true;
-    }
 
     // Give the page a moment to paint before she starts walking.
     let app2 = app.clone();
@@ -241,50 +251,21 @@ fn show_overlay(app: &AppHandle) {
 
 fn hide_overlay(app: &AppHandle) {
     if let Some(win) = app.get_webview_window("overlay") {
-        let _ = win.set_ignore_cursor_events(true);
         let _ = win.hide();
     }
-    let shared = app.state::<Shared>();
-    let mut st = shared.0.lock().unwrap();
-    st.overlay_showing = false;
-    st.hit_rect = None;
-    st.ignoring_cursor = true;
+    app.state::<Shared>().0.lock().unwrap().overlay_showing = false;
 }
 
-/// Clicks pass through the transparent overlay everywhere except on
-/// the character and her speech bubble.
-fn cursor_watcher(app: AppHandle) {
-    loop {
-        let (showing, rect, ignoring) = {
-            let shared = app.state::<Shared>();
-            let st = shared.0.lock().unwrap();
-            (st.overlay_showing, st.hit_rect, st.ignoring_cursor)
-        };
-        if !showing {
-            thread::sleep(Duration::from_millis(300));
-            continue;
-        }
-        let want_ignore = match (rect, app.get_webview_window("overlay")) {
-            (Some([x, y, w, h]), Some(win)) => {
-                match (app.cursor_position(), win.outer_position(), win.scale_factor()) {
-                    (Ok(c), Ok(p), Ok(scale)) => {
-                        let lx = (c.x - p.x as f64) / scale;
-                        let ly = (c.y - p.y as f64) / scale;
-                        !(lx >= x && lx <= x + w && ly >= y && ly <= y + h)
-                    }
-                    // If we can't read the cursor, keep the buttons clickable.
-                    _ => false,
-                }
-            }
-            _ => true,
-        };
-        if want_ignore != ignoring {
-            if let Some(win) = app.get_webview_window("overlay") {
-                let _ = win.set_ignore_cursor_events(want_ignore);
-            }
-            app.state::<Shared>().0.lock().unwrap().ignoring_cursor = want_ignore;
-        }
-        thread::sleep(Duration::from_millis(50));
+/// Moves the little reminder window; `x` is its left edge in logical pixels
+/// from the left of the screen.
+#[tauri::command]
+fn overlay_move(app: AppHandle, shared: tauri::State<Shared>, x: f64) {
+    let (area_x, win_y, scale) = {
+        let st = shared.0.lock().unwrap();
+        (st.area_x, st.win_y, st.scale)
+    };
+    if let Some(win) = app.get_webview_window("overlay") {
+        let _ = win.set_position(PhysicalPosition::new(area_x + (x * scale) as i32, win_y));
     }
 }
 
@@ -380,10 +361,6 @@ fn reminder_snooze(app: AppHandle, shared: tauri::State<Shared>) {
     refresh_tray(&app);
 }
 
-#[tauri::command]
-fn set_hit_rect(shared: tauri::State<Shared>, rect: Option<[f64; 4]>) {
-    shared.0.lock().unwrap().hit_rect = rect;
-}
 
 #[tauri::command]
 fn overlay_finished(app: AppHandle) {
@@ -426,7 +403,7 @@ pub fn run() {
             set_autostart,
             reminder_done,
             reminder_snooze,
-            set_hit_rect,
+            overlay_move,
             overlay_finished,
             overlay_ready,
             show_now,
@@ -446,8 +423,9 @@ pub fn run() {
                 progress,
                 next_due,
                 overlay_showing: false,
-                hit_rect: None,
-                ignoring_cursor: true,
+                area_x: 0,
+                win_y: 0,
+                scale: 1.0,
             })));
 
             // Tray menu
@@ -533,8 +511,6 @@ pub fn run() {
             refresh_tray(&handle);
             let h1 = handle.clone();
             thread::spawn(move || scheduler(h1));
-            let h2 = handle.clone();
-            thread::spawn(move || cursor_watcher(h2));
             Ok(())
         })
         .build(tauri::generate_context!())
