@@ -7,7 +7,7 @@ A tiny desktop app for Mac and Windows. On the schedule you set, a cheerful char
 - Click **Done** to log a glass (she has a happy sip and walks off).
 - Click **Snooze 10 min** to get her to come back later.
 - If you ignore her for 2 minutes, she snoozes on her own.
-- The rest of your screen stays fully clickable while she's there.
+- She walks in her own small window, so the rest of your screen is never covered.
 - Everything else lives in the water-drop icon in your menu bar (Mac) or system tray (Windows): **Remind me now**, **I just drank a glass**, **Pause**, **Settings** and **Quit**.
 - In Settings you can choose the interval, active hours, weekdays only, daily goal, a gentle chime and whether it starts automatically.
 
