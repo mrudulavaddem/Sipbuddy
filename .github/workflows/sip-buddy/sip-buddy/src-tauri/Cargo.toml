@@ -1,6 +1,6 @@
 [package]
 name = "sip-buddy"
-version = "1.0.0"
+version = "1.7.0"
 description = "A friendly water reminder that walks across your screen"
 edition = "2021"
 
