@@ -71,6 +71,18 @@
     });
   }
 
+  const stage = document.getElementById('stage');
+  function fade(show) {
+    if (show) {
+      // start invisible, then fade in
+      stage.style.transition = 'none';
+      stage.style.opacity = '0';
+      void stage.offsetWidth;
+    }
+    stage.style.transition = 'opacity .8s ease';
+    stage.style.opacity = show ? '1' : '0';
+  }
+
   function chime() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -120,11 +132,12 @@
       screenW = info.screen_width || screen.availWidth;
       winW = info.window_width || 280;
     }
-    const startX = inApp ? -winW : -200;
+    const startX = inApp ? 0 : -200;
     const stopAt = inApp
       ? Math.max(0, Math.min(screenW - winW, screenW * 0.5 - winW / 2))
       : Math.max(80, Math.min(window.innerWidth - 160, window.innerWidth * 0.68));
     setX(startX);
+    fade(true);
     await walkTo(stopAt);
     setPose('standing');
     if (info.sound !== false) chime();
@@ -157,7 +170,14 @@
 
     bubble.classList.remove('show');
     await sleep(200);
-    await walkTo(inApp ? screenW + 10 : window.innerWidth + 60);
+    // walk to the right edge of this screen and fade away there
+    const exitX = inApp ? Math.max(0, screenW - winW) : window.innerWidth + 60;
+    const leave = walkTo(exitX);
+    if (inApp) {
+      const walkMs = (Math.abs(exitX - x) / SPEED) * 1000;
+      setTimeout(() => fade(false), Math.max(0, walkMs - 900));
+    }
+    await leave;
     setPose('walking');
     busy = false;
     await invoke('overlay_finished');
