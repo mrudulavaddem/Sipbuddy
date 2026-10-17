@@ -63,6 +63,7 @@ struct State {
     area_x: i32,
     win_y: i32,
     scale: f64,
+    area_w: f64,
 }
 
 struct Shared(Mutex<State>);
@@ -202,9 +203,15 @@ fn show_overlay(app: &AppHandle) {
     let Some(win) = app.get_webview_window("overlay") else { return };
     let shared = app.state::<Shared>();
 
-    // Measure the main screen's usable area (above the taskbar / dock).
-    let (area_x, area_y, area_w, area_h, scale) = match win.primary_monitor() {
-        Ok(Some(mon)) => {
+    // Use the screen the mouse is on (where you're working), falling back to the
+    // main screen, and measure its usable area (above the taskbar / dock).
+    let mon = app
+        .cursor_position()
+        .ok()
+        .and_then(|c| app.monitor_from_point(c.x, c.y).ok().flatten())
+        .or_else(|| win.primary_monitor().ok().flatten());
+    let (area_x, area_y, area_w, area_h, scale) = match mon {
+        Some(mon) => {
             let a = mon.work_area();
             (a.position.x, a.position.y, a.size.width, a.size.height, mon.scale_factor())
         }
@@ -224,6 +231,7 @@ fn show_overlay(app: &AppHandle) {
         st.area_x = area_x;
         st.win_y = win_y;
         st.scale = scale;
+        st.area_w = area_w as f64 / scale;
         ReminderInfo {
             glasses: st.progress.glasses,
             goal: st.settings.daily_goal,
@@ -234,9 +242,9 @@ fn show_overlay(app: &AppHandle) {
         }
     };
 
-    // Start just off the left edge of the screen.
+    // Start at the left edge of that screen (she fades in there).
     let _ = win.set_size(PhysicalSize::new(w, h));
-    let _ = win.set_position(PhysicalPosition::new(area_x - w as i32, win_y));
+    let _ = win.set_position(PhysicalPosition::new(area_x, win_y));
     let _ = win.set_always_on_top(true);
     let _ = win.set_visible_on_all_workspaces(true);
     let _ = win.show();
@@ -260,10 +268,12 @@ fn hide_overlay(app: &AppHandle) {
 /// from the left of the screen.
 #[tauri::command]
 fn overlay_move(app: AppHandle, shared: tauri::State<Shared>, x: f64) {
-    let (area_x, win_y, scale) = {
+    let (area_x, win_y, scale, area_w) = {
         let st = shared.0.lock().unwrap();
-        (st.area_x, st.win_y, st.scale)
+        (st.area_x, st.win_y, st.scale, st.area_w)
     };
+    // Never let the window leave this screen (so it can't wander onto another monitor).
+    let x = x.clamp(0.0, (area_w - OVERLAY_WIDTH).max(0.0));
     if let Some(win) = app.get_webview_window("overlay") {
         let _ = win.set_position(PhysicalPosition::new(area_x + (x * scale) as i32, win_y));
     }
@@ -426,6 +436,7 @@ pub fn run() {
                 area_x: 0,
                 win_y: 0,
                 scale: 1.0,
+                area_w: 1280.0,
             })));
 
             // Tray menu
